@@ -1,7 +1,15 @@
 export default function Results(props) {
   return (
-    <section>
-      <pre>{props.data ? JSON.stringify(props.data, undefined, 2) : null}</pre>
+    <section
+      style={{
+        width: "80%",
+        marginLeft: "150px",
+        marginTop: "15px",
+        padding: "15px",
+        backgroundColor: "lightgray",
+      }}
+    >
+      <pre>{props.data ? JSON.stringify(props.data, null, "\t") : null}</pre>
     </section>
   );
 }

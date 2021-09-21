@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import "./app.scss";
 import Header from "./componenets/Header";
 import Form from "./componenets/form/Form";
@@ -9,23 +10,29 @@ function App() {
   const [data, setData] = useState(null);
   const [requestParams, setRequestParams] = useState({});
 
+  useEffect(() => {
+    console.log('inside the effect');
+    callApi(requestParams);
+  }, [requestParams])
+
   const callApi = (requestParams) => {
-    const data = {
-      count: 2,
-      results: [
-        { name: "fake thing 1", url: "http://fakethings.com/1" },
-        { name: "fake thing 2", url: "http://fakethings.com/2" },
-      ],
-    };
-    setData(data);
+    axios
+      .get(requestParams.url)
+      .then((data) => {
+        setData(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
     setRequestParams(requestParams);
   };
 
   return (
     <>
       <Header />
-      <div className='properities'>Request Method: {requestParams.method}</div>
-      <div className='properities'>URL: {requestParams.url}</div>
+      <div className="properities">Request Method: {requestParams.method}</div>
+      <div className="properities">URL: {requestParams.url}</div>
       <Form handleApiCall={callApi} />
       <Results data={data} />
       <Footer />
