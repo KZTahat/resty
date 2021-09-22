@@ -1,40 +1,76 @@
-import { useState, useEffect } from "react";
+import { useReducer, useEffect } from "react";
 import axios from "axios";
 import "./app.scss";
 import Header from "./componenets/Header";
 import Form from "./componenets/form/Form";
 import Results from "./componenets/Results";
+import History from "./componenets/History";
 import Footer from "./componenets/Footer";
 
-function App() {
-  const [data, setData] = useState(null);
-  const [requestParams, setRequestParams] = useState({});
+const initialState = {
+  data: {},
+  history: [], // { method: 'GET', url: 'String', results: [] }
+};
 
-  useEffect(() => {
-    console.log('inside the effect');
-    callApi(requestParams);
-  }, [requestParams])
+function reducer(state, action) {
+  switch (action.type) {
+    case "new-Data":
+      return {
+        data: action.payload.data,
+        history: [...state.history, action.payload.requestParams],
+      };
+    default:
+      return state;
+  }
+}
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const callApi = (requestParams) => {
     axios
       .get(requestParams.url)
       .then((data) => {
-        setData(data);
+        const action = {
+          type: "new-Data",
+          payload: { data, requestParams },
+        };
+        dispatch(action);
       })
       .catch((error) => {
         console.log(error);
       });
-
-    setRequestParams(requestParams);
   };
 
   return (
     <>
       <Header />
-      <div className="properities">Request Method: {requestParams.method}</div>
-      <div className="properities">URL: {requestParams.url}</div>
       <Form handleApiCall={callApi} />
-      <Results data={data} />
+      <div
+        style={{
+          width: "25%",
+          margin: "15px",
+          position: "absolute",
+          top: "150px",
+          left: "30px",
+        }}
+      >
+        <History history={state.history} callApi={callApi} />;
+      </div>
+      <div
+        style={{
+          width: "60%",
+          marginLeft: "150px",
+          marginTop: "15px",
+          padding: "15px",
+          backgroundColor: "lightgray",
+          position: "absolute",
+          top: "150px",
+          right: "100px",
+        }}
+      >
+        <Results data={state.data} />
+      </div>
       <Footer />
     </>
   );
